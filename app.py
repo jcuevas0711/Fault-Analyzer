@@ -532,12 +532,13 @@ with tab2:
     I_pf_m=[abs(I0_pf_s),abs((Ia_pf+A_op*Ib_pf+A2*Ic_pf)/3),abs((Ia_pf+A2*Ib_pf+A_op*Ic_pf)/3)]
 
     fig2=make_subplots(rows=1,cols=2,subplot_titles=["Tensiones de Secuencia (V)","Corrientes de Secuencia (A)"])
-    clrs=["#ff4444","#f0a500","#00b4ff"]
-    for i,(lbl,clr) in enumerate(zip(seq_labels,clrs)):
+    clrs     = ["#ff4444","#f0a500","#00b4ff"]
+    clrs_dim = ["rgba(255,68,68,0.3)","rgba(240,165,0,0.3)","rgba(0,180,255,0.3)"]
+    for i,(lbl,clr,clr_dim) in enumerate(zip(seq_labels,clrs,clrs_dim)):
         fig2.add_trace(go.Bar(x=[lbl],y=[V_m[i]],name=f"{lbl}",marker_color=clr),row=1,col=1)
-        fig2.add_trace(go.Bar(x=[lbl],y=[V_pf_m[i]],name=f"{lbl} pre",marker_color=clr+"55",showlegend=False),row=1,col=1)
+        fig2.add_trace(go.Bar(x=[lbl],y=[V_pf_m[i]],name=f"{lbl} pre",marker_color=clr_dim,showlegend=False),row=1,col=1)
         fig2.add_trace(go.Bar(x=[lbl],y=[I_m[i]],name=lbl,marker_color=clr,showlegend=False),row=1,col=2)
-        fig2.add_trace(go.Bar(x=[lbl],y=[I_pf_m[i]],name=f"{lbl} pre",marker_color=clr+"55",showlegend=False),row=1,col=2)
+        fig2.add_trace(go.Bar(x=[lbl],y=[I_pf_m[i]],name=f"{lbl} pre",marker_color=clr_dim,showlegend=False),row=1,col=2)
     fig2.update_layout(height=400,barmode="group",paper_bgcolor=DARK,plot_bgcolor=CARD,
                        font=dict(color="#8899bb",size=10),margin=dict(l=50,r=20,t=35,b=40))
     for ax in ["xaxis","xaxis2","yaxis","yaxis2"]: fig2.layout[ax].update(gridcolor=GRID,zeroline=False)
