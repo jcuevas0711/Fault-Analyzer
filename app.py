@@ -205,7 +205,20 @@ def load_comtrade(cfg_bytes, dat_bytes):
     if len(t_arr) < 2:
         raise ValueError("El archivo DAT no contiene suficientes muestras.")
 
-    fs = 1.0 / np.median(np.diff(t_arr))
+    # Use sample_rate from CFG first (most reliable), fallback to diff(t)
+    fs_cfg = float(meta.get("sample_rate", 0))
+    if fs_cfg > 0:
+        fs = fs_cfg
+    else:
+        diffs = np.diff(t_arr)
+        diffs = diffs[diffs > 0]   # remove zeros / negatives
+        if len(diffs) == 0:
+            fs = 3840.0
+        else:
+            dt = float(np.median(diffs))
+            fs = 1.0 / dt if dt > 0 else 3840.0
+    # Sanity clamp: realistic range 100 – 100000 Hz
+    fs = float(np.clip(fs, 100.0, 100_000.0))
 
     # Map channels by name
     names = [c["name"].lower().strip() for c in ch]
@@ -283,17 +296,19 @@ ts    = data["timestamp"]
 
 # ─── Analysis helpers ─────────────────────────────────────────────────────────
 def rms_w(x, fs, cyc=1):
-    N = max(2, int(fs / 60 * cyc))
+    N = max(2, min(int(fs / 60 * cyc), len(x) // 4))
     return np.sqrt(np.convolve(x**2, np.ones(N)/N, mode="same"))
 
 def phasor(x, idx, fs, f0=60.0):
-    n = int(fs / f0)
+    n = max(2, min(int(fs / f0), len(x) - idx))
     seg = x[idx:idx+n]
     if len(seg) < n: seg = np.pad(seg, (0, n-len(seg)))
     return np.dot(seg, np.exp(-1j*2*np.pi*np.arange(n)/n)) * 2/n
 
 # Onset detection
-n_pre = max(4, int(3 * fs / 60))
+n_samples_total = len(t_arr)
+# n_pre = 3 cycles, but never more than 25% of the signal
+n_pre = min(max(4, int(3 * fs / 60)), n_samples_total // 4)
 Irms = rms_w(Ia+Ib+Ic, fs)
 thresh = np.mean(Irms[:n_pre]) + 5*np.std(Irms[:n_pre])
 cands = np.where(Irms > thresh)[0]
