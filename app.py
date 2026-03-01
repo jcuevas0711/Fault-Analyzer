@@ -13,59 +13,129 @@ st.set_page_config(
 )
 
 # ─── CSS ──────────────────────────────────────────────────────────────────────
-st.markdown("""
+AER_LOGO_B64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACgAKADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAYHAwQFCAIB/8QARxAAAQQBAgMDBggKCQUAAAAAAQACAwQFBhEHEiETMVEUIkFhcYEIFyMyVJSh0RUzNkJSYnKRkrMWJVNVVnWisdJDRYPBwv/EABkBAQADAQEAAAAAAAAAAAAAAAACAwQBBf/EADURAAIBAgIGBggHAAAAAAAAAAABAgMRBCEFEhNhcZEUMkFSgaEGFiIxM4KSwUJDYrGy0dL/2gAMAwEAAhEDEQA/APZaIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIi18lcrY6hPeuSiKvXjMkjz6GgblARTitrL+imHjbU7N+Ttktga8bhjR86Qj1dAB6SfAFVTgeKWq6OUisZHIOyVTm+WgfDG0ub6S0taNneHo8QuRm7+T13rXtIYibF2UQ1YSekUY35QT4Abucf2ippxU4eVsNpijksPGXeQxiK8dusoJ/HEePMTv6iPQ1AXLj7da/RgvVJWy154xJG9vc5pG4KzqmOAmq+xmdpW7J8nIXSUXE9zu98fv6uHr5vEK50BEuJOta2j6MJFfyu9ZJEEPNygAbbucfQBuOneT7yKotcX9XPeXNfja4Pc1lc//Titj4Qkj3a5rxk+azHRkD1mSTf/AGCm3CWTSuO0TRdNbxMN2YOfYdLLGJCS47A7nfoNgAgK7+NzV/02j9Xb96fG5q/6bR+rt+9Xl+GdL/3rhvrEf3rdpuxl2AT0zUsxEkc8Ra9u49G4QEH4L6ty+qY8q7KzQSms6IR9lGG7c3Pvvt7AoVqHihq2lqLK0oJ6YhrXp4Iwa4JDWSOa3c79TsAr2jijj37ONjN+/lG268q6r/LXN/5ta/nvQEj+N3V30vH/AFcfenxu6u+l4/6uPvXoXsIP7GP+EJ2EH9jH/CEB5/g4v6ua7ftMZN6n1zt/pcFZnDLX8WrTNSs1W1MjAztCxjuZkrN9i5u/UbEjcHxHU9dt7ihjcfY0JmJJ6kDnw1JJYnlg5mPaN2kH0dQqg4GOc3iJVDSdnQSh3s5d/wDcBAeiUREAREQBUtx71X5RYbpalJvFCWyXXA9HP72x+7o4+vl8CrG4iami0tpqa/5rrUnyVSM/nSEdCfUOpPs29IVD6A09Z1hqxsFh8j4eY2L85PnFpO56/pOJ295PoQHQ4Vak05pa1ZyOVrX7F547KDsImObGzoSd3OHnE9O7oB39Sp/Y4waSsV5K8+My0kUrCx7HQREOaRsQR2ndsul8U+jPodr60/70+KfRn0O19af96AoO3LXrZh9jCy2Y4Ipu0qPlAbLGAd277EjcdOu/Xbf1L0pw91LDqnTcOQHK2yz5K1GPzJAOu3qPQj1H2qI6s4Vafbg7JwYkgyTG88IlskteR15CHHYbjpv6Dsovwzqau0lqJlifBX3461tFcbEztNm7+a/ZhJ3aSfcXLl0DB8IL8vov8ui/mSrFpvhbl87g6uXr5ChFFZaXNZJz8w6kddh6l3PhE4awMhR1BHE51YwCrM8DpG4OJZv4A85G/iNvSFxNFcT8lpvCRYh2NgvQQl3YudKY3NBJJBOx36k7dy6Df+JbO/3rjP3P+5Whw309Z0xphmKtzwzStle/mi35dnHf0qu/jtuf4bg+un/gnx23P8NwfXT/AMEBdC8pat3/AKZ5zl7/AMK2tvb270FeV0bHaR4RaVycTebIYuFm7s3N7HnpuP0l1x9XihjcfY0JmJJ6kDnw1JJYnlg5mPaN2kH0dQqg4GOc3iJVDSdnQSh3s5d/wDcBAeiUREAREQBUtx71X5RYbpalJvFCWyXXA9HP72x+7o4+vl8CrG4iami0tpqa/5rrUnyVSM/nSEdCfUOpPs29IVD6A09Z1hqxsFh8j4eY2L85PnFpO56/pOJ295PoQHQ4Vak05pa1ZyOVrX7F547KDsImObGzoSd3OHnE9O7oB39Sp/Y4waSsV5K8+My0kUrCx7HQREOaRsQR2ndsul8U+jPodr60/70+KfRn0O19af96AoO3LXrZh9jCy2Y4Ipu0qPlAbLGAd277EjcdOu/Xbf1L0pw91LDqnTcOQHK2yz5K1GPzJAOu3qPQj1H2qI6s4Vafbg7JwYkgyTG88IlskteR15CHHYbjpv6Dsovwzqau0lqJlifBX3461tFcbEztNm7+a/ZhJ3aSfcXLl0DB8IL8vov8ui/mSrFpvhbl87g6uXr5ChFFZaXNZJz8w6kddh6l3PhE4awMhR1BHE51YwCrM8DpG4OJZv4A85G/iNvSFxNFcT8lpvCRYh2NgvQQl3YudKY3NBJJBOx36k7dy6Df+JbO/3rjP3P+5Whw309Z0xphmKtzwzStle/mi35dnHf0qu/jtuf4bg+un/gnx23P8NwfXT/AMEBdC8pat3/AKZ5zl7/AMK2tvb274="
+
+st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;600;700;800&display=swap');
 
-* { font-family: 'Barlow', sans-serif; }
+* {{ font-family: 'Inter', sans-serif; }}
 
-[data-testid="stAppViewContainer"] {
-    background: #080c14;
-    background-image:
-        radial-gradient(ellipse at 20% 0%, rgba(0,180,255,0.06) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 100%, rgba(255,140,0,0.05) 0%, transparent 60%);
-}
-[data-testid="stSidebar"] { background: #0d1220; border-right: 1px solid rgba(0,180,255,0.12); }
-[data-testid="stHeader"] { background: transparent; }
+[data-testid="stAppViewContainer"] {{
+    background: #f0f2f5;
+}}
+[data-testid="stSidebar"] {{
+    background: #ffffff;
+    border-right: 1px solid #e0e4ea;
+}}
+[data-testid="stHeader"] {{ background: transparent; }}
 
-.hero { padding: 2rem 0 1.5rem; border-bottom: 1px solid rgba(0,180,255,0.12); margin-bottom: 2rem; }
-.hero-title { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; color: #ffffff; line-height: 1; }
-.hero-title span { color: #00b4ff; }
-.hero-sub { color: #4a6080; font-size: 0.9rem; margin-top: 6px; }
+/* Top navbar */
+.aer-navbar {{
+    background: #ffffff;
+    border-bottom: 3px solid #2e7d32;
+    padding: 0.9rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}}
+.aer-navbar-left {{ display: flex; align-items: center; gap: 16px; }}
+.aer-navbar-title {{
+    font-size: 1.4rem; font-weight: 800; color: #1a2535; letter-spacing: -0.5px;
+}}
+.aer-navbar-title span {{ color: #2e7d32; }}
+.aer-navbar-sub {{ font-size: 0.75rem; color: #6b7a8d; margin-top: 1px; }}
+.aer-navbar-badge {{
+    background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7;
+    border-radius: 20px; padding: 3px 12px; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+}}
 
-.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.5rem 0; }
-.mcard { background: #0d1220; border: 1px solid rgba(0,180,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
-.mcard-label { font-size: 0.68rem; color: #4a6080; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
-.mcard-value { font-family: 'Share Tech Mono', monospace; font-size: 1.6rem; color: #00b4ff; line-height: 1; }
-.mcard-unit { font-size: 0.72rem; color: #4a6080; margin-top: 4px; }
+/* Metric cards */
+.metrics-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 1.2rem 0; }}
+.mcard {{
+    background: #ffffff;
+    border: 1px solid #e0e4ea;
+    border-top: 3px solid #2e7d32;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}}
+.mcard-label {{ font-size: 0.65rem; color: #6b7a8d; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: 600; }}
+.mcard-value {{ font-family: 'Share Tech Mono', monospace; font-size: 1.7rem; color: #1a2535; line-height: 1; }}
+.mcard-unit {{ font-size: 0.7rem; color: #6b7a8d; margin-top: 3px; }}
 
-.fault-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 24px; border-radius: 6px;
-    font-family: 'Share Tech Mono', monospace; font-size: 1.7rem; letter-spacing: 3px; }
-.badge-ground  { background: rgba(255,60,60,0.1);  border: 1px solid rgba(255,60,60,0.4);  color: #ff4444; }
-.badge-phase   { background: rgba(255,165,0,0.1);  border: 1px solid rgba(255,165,0,0.4);  color: #ffa500; }
-.badge-3ph     { background: rgba(180,0,255,0.1);  border: 1px solid rgba(180,0,255,0.4);  color: #cc44ff; }
-.badge-unknown { background: rgba(100,100,100,0.1);border: 1px solid rgba(100,100,100,0.4);color: #888; }
+/* Fault badge */
+.fault-badge {{ display: inline-flex; align-items: center; gap: 8px; padding: 8px 24px; border-radius: 6px;
+    font-family: 'Share Tech Mono', monospace; font-size: 1.7rem; letter-spacing: 3px; font-weight: 700; }}
+.badge-ground  {{ background: #fff3f3; border: 2px solid #e53935; color: #c62828; }}
+.badge-phase   {{ background: #fff8e1; border: 2px solid #f9a825; color: #e65100; }}
+.badge-3ph     {{ background: #f3e5f5; border: 2px solid #8e24aa; color: #6a1b9a; }}
+.badge-unknown {{ background: #f5f5f5; border: 2px solid #9e9e9e; color: #616161; }}
 
-.loc-bar-track { height: 12px; background: rgba(255,255,255,0.06); border-radius: 6px; position: relative;
-    border: 1px solid rgba(0,180,255,0.1); margin: 8px 0; }
-.loc-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg,#00b4ff,#0070cc); position: absolute; }
-.loc-bar-marker { width: 14px; height: 22px; background: #ff4444; border-radius: 3px; position: absolute;
-    top: -5px; transform: translateX(-50%); }
-.loc-bar-labels { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem; color: #4a6080; margin-top: 4px; }
+/* Location bar */
+.loc-bar-track {{
+    height: 14px; background: #e8eaed; border-radius: 7px; position: relative;
+    border: 1px solid #d0d4da; margin: 8px 0;
+}}
+.loc-bar-fill {{
+    height: 100%; border-radius: 7px;
+    background: linear-gradient(90deg, #43a047, #2e7d32);
+    position: absolute;
+}}
+.loc-bar-marker {{
+    width: 14px; height: 24px; background: #e53935; border-radius: 4px;
+    position: absolute; top: -5px; transform: translateX(-50%);
+    box-shadow: 0 2px 6px rgba(229,57,53,0.5);
+}}
+.loc-bar-labels {{
+    display: flex; justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem; color: #6b7a8d; margin-top: 4px;
+}}
 
-.consensus-box { background: rgba(0,180,255,0.06); border: 1px solid rgba(0,180,255,0.25);
-    border-radius: 10px; padding: 1.2rem 1.8rem; margin: 1rem 0; }
-.consensus-km { font-family: 'Share Tech Mono', monospace; font-size: 3rem; color: #00b4ff; line-height: 1; }
+/* Consensus box */
+.consensus-box {{
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-left: 5px solid #2e7d32;
+    border-radius: 8px;
+    padding: 1.2rem 1.8rem;
+    margin: 1rem 0;
+}}
+.consensus-km {{ font-family: 'Share Tech Mono', monospace; font-size: 3rem; color: #2e7d32; line-height: 1; }}
 
-.section-title { font-size: 0.72rem; color: #00b4ff; letter-spacing: 3px; text-transform: uppercase;
-    font-weight: 600; border-left: 3px solid #00b4ff; padding-left: 10px; margin: 2rem 0 1rem; }
+/* Section title */
+.section-title {{
+    font-size: 0.7rem; color: #2e7d32; letter-spacing: 3px; text-transform: uppercase;
+    font-weight: 700; border-left: 3px solid #2e7d32; padding-left: 10px; margin: 1.8rem 0 0.8rem;
+}}
 
-.stTabs [data-baseweb="tab-list"] { gap: 4px; background: transparent; }
-.stTabs [data-baseweb="tab"] { background: rgba(255,255,255,0.03); border: 1px solid rgba(0,180,255,0.08);
-    border-radius: 6px; color: #4a6080; padding: 8px 20px; }
-.stTabs [aria-selected="true"] { background: rgba(0,180,255,0.1) !important;
-    border-color: rgba(0,180,255,0.4) !important; color: #00b4ff !important; }
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {{ gap: 4px; background: transparent; }}
+.stTabs [data-baseweb="tab"] {{
+    background: #ffffff; border: 1px solid #e0e4ea;
+    border-radius: 6px; color: #6b7a8d; padding: 8px 20px;
+    font-weight: 500;
+}}
+.stTabs [aria-selected="true"] {{
+    background: #e8f5e9 !important;
+    border-color: #2e7d32 !important;
+    color: #2e7d32 !important;
+    font-weight: 700 !important;
+}}
+
+/* General text readability */
+h1, h2, h3 {{ color: #1a2535; }}
+p, label, div {{ color: #2c3e50; }}
+.stRadio label {{ color: #1a2535 !important; font-weight: 500; }}
+.stNumberInput label {{ color: #1a2535 !important; font-weight: 500; }}
+[data-testid="stMetricValue"] {{ color: #1a2535 !important; }}
+[data-testid="stMetricLabel"] {{ color: #6b7a8d !important; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -248,10 +318,16 @@ def load_comtrade(cfg_bytes, dat_bytes):
 # ═══════════════════════════════════════════════════════════════════════════════
 # UI — HERO
 # ═══════════════════════════════════════════════════════════════════════════════
-st.markdown("""
-<div class="hero">
-  <div class="hero-title">⚡ FAULT <span>ANALYZER</span></div>
-  <div class="hero-sub">Análisis de fallas en líneas de transmisión · Archivos COMTRADE</div>
+st.markdown(f"""
+<div class="aer-navbar">
+    <div class="aer-navbar-left">
+        <img src="data:image/png;base64,{AER_LOGO_B64}" height="52" style="border-radius:4px;">
+        <div>
+            <div class="aer-navbar-title">⚡ FAULT <span>ANALYZER</span></div>
+            <div class="aer-navbar-sub">Alternativa de Energía Renovable, S.A. · Análisis de fallas en líneas de transmisión</div>
+        </div>
+    </div>
+    <span class="aer-navbar-badge">COMTRADE</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -496,7 +572,7 @@ st.markdown(f"""
 # ─── Charts ────────────────────────────────────────────────────────────────────
 st.markdown('<div class="section-title">Gráficas</div>', unsafe_allow_html=True)
 
-DARK="rgba(8,12,20,1)"; CARD="rgba(13,18,32,1)"; GRID="rgba(0,180,255,0.08)"
+DARK="rgba(255,255,255,1)"; CARD="rgba(248,250,252,1)"; GRID="rgba(0,0,0,0.06)"
 t_ms = t_arr*1000
 onset_ms_v = t_ms[onset] if onset<len(t_ms) else 0
 clear_ms_v = t_ms[clear] if clear<len(t_ms) else t_ms[-1]
@@ -516,7 +592,7 @@ with tab1:
         fig.add_vline(x=clear_ms_v,line=dict(color="#44dd88",width=1,dash="dot"),
                       annotation_text="Clear",annotation_font_color="#44dd88",row=row,col=1)
     fig.update_layout(height=520,paper_bgcolor=DARK,plot_bgcolor=CARD,
-                      font=dict(color="#8899bb",size=10),margin=dict(l=50,r=20,t=35,b=40))
+                      font=dict(color="#2c3e50",size=10),margin=dict(l=50,r=20,t=35,b=40))
     for ax in ["xaxis","xaxis2","yaxis","yaxis2"]:
         fig.layout[ax].update(gridcolor=GRID, zeroline=False)
     fig.update_xaxes(title_text="Tiempo (ms)",row=2,col=1)
@@ -540,7 +616,7 @@ with tab2:
         fig2.add_trace(go.Bar(x=[lbl],y=[I_m[i]],name=lbl,marker_color=clr,showlegend=False),row=1,col=2)
         fig2.add_trace(go.Bar(x=[lbl],y=[I_pf_m[i]],name=f"{lbl} pre",marker_color=clr_dim,showlegend=False),row=1,col=2)
     fig2.update_layout(height=400,barmode="group",paper_bgcolor=DARK,plot_bgcolor=CARD,
-                       font=dict(color="#8899bb",size=10),margin=dict(l=50,r=20,t=35,b=40))
+                       font=dict(color="#2c3e50",size=10),margin=dict(l=50,r=20,t=35,b=40))
     for ax in ["xaxis","xaxis2","yaxis","yaxis2"]: fig2.layout[ax].update(gridcolor=GRID,zeroline=False)
     st.plotly_chart(fig2,use_container_width=True)
 
@@ -573,9 +649,9 @@ with tab3:
                                mode="lines",line=dict(color="rgba(240,165,0,0.3)",width=1.5,dash="dot"),
                                name="Zona MHO"))
     fig3.update_layout(height=480,paper_bgcolor=DARK,plot_bgcolor=CARD,
-                       font=dict(color="#8899bb",size=10),margin=dict(l=50,r=20,t=35,b=40),
-                       xaxis=dict(gridcolor=GRID,zeroline=True,zerolinecolor=GRID,title="R (Ω)"),
-                       yaxis=dict(gridcolor=GRID,zeroline=True,zerolinecolor=GRID,title="X (Ω)"))
+                       font=dict(color="#2c3e50",size=10),margin=dict(l=50,r=20,t=35,b=40),
+                       xaxis=dict(gridcolor=GRID,zeroline=True,zerolinecolor="#b0bec5",title="R (Ω)"),
+                       yaxis=dict(gridcolor=GRID,zeroline=True,zerolinecolor="#b0bec5",title="X (Ω)"))
     st.plotly_chart(fig3,use_container_width=True)
 
 # ─── Summary table ─────────────────────────────────────────────────────────────
