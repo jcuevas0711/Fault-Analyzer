@@ -654,6 +654,197 @@ with tab3:
                        yaxis=dict(gridcolor=GRID,zeroline=True,zerolinecolor="#b0bec5",title="X (Ω)"))
     st.plotly_chart(fig3,use_container_width=True)
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# DIAGNÓSTICO PARA EQUIPO DE CAMPO
+# ═══════════════════════════════════════════════════════════════════════════════
+st.markdown('<div class="section-title">🔎 Diagnóstico para equipo de campo</div>', unsafe_allow_html=True)
+
+# ── Lógica de diagnóstico ──────────────────────────────────────────────────────
+causas     = []   # (emoji, título, descripción, prioridad: "alta"/"media"/"baja")
+acciones   = []   # strings de qué revisar en campo
+descartar  = []   # qué probablemente NO es
+
+I_rated    = cfg_line["I_rated"]
+I_falla_max = max(Ia_pk, Ib_pk, Ic_pk)
+factor_I   = I_falla_max / max(I_rated, 1)
+pct_linea  = (consensus / line_length * 100) if consensus else 50
+
+# ── Reglas de diagnóstico ──────────────────────────────────────────────────────
+
+# 1. TIPO DE FALLA → causa principal
+if ft in ("AG", "BG", "CG"):
+    causas.append(("⚡", "Falla fase-tierra (monofásica)",
+        f"Solo una fase ({ft[0]}) tocó tierra. Causa más común: aislador flashover, rama de árbol, pararrayos dañado o conductor caído.",
+        "alta"))
+    acciones += [
+        f"Inspeccionar aisladores de fase {ft[0]} en el tramo identificado",
+        "Buscar marcas de arco eléctrico (quemaduras negras) en aisladores",
+        "Revisar pararrayos de fase — medir con medidor de fuga",
+        "Verificar vegetación cercana a la línea (ramas quemadas)",
+        "Buscar conductor caído o dañado en el suelo",
+    ]
+    descartar += ["Falla en transformador (la falla es en línea)", "Problema trifásico de equipo"]
+
+elif ft in ("AB", "BC", "CA"):
+    causas.append(("⚡⚡", "Falla entre dos fases (sin tierra)",
+        "Dos fases se tocaron entre sí sin llegar a tierra. Probable causa: balanceo de conductores por viento fuerte, objeto extraño (cometa, rama) o distancia entre conductores reducida.",
+        "alta"))
+    acciones += [
+        "Inspeccionar separadores/espaciadores entre conductores",
+        "Buscar objetos atrapados entre fases (cometas, alambres)",
+        "Verificar flecha de conductores — posible elongación",
+        "Revisar estructuras/crucetas por daño mecánico",
+    ]
+    descartar += ["Problema de aisladores a tierra", "Falla de pararrayos"]
+
+elif ft in ("ABG", "BCG", "CAG"):
+    causas.append(("⚡⚡", "Falla doble fase-tierra",
+        "Dos fases tocaron tierra simultáneamente. Probable: caída de estructura, impacto de rayo que afectó dos fases, o falla de aisladores múltiples.",
+        "alta"))
+    acciones += [
+        "Verificar integridad de estructura (poste/torre) — posible volteo",
+        "Buscar evidencia de impacto de rayo (marcas en estructura)",
+        "Revisar aisladores de ambas fases afectadas",
+        "Inspeccionar puesta a tierra de estructura",
+    ]
+
+elif "3PH" in ft:
+    causas.append(("🔴", "Falla trifásica",
+        "Las tres fases fallaron simultáneamente. Causas: rayo directo sobre la línea, colapso de estructura, o cortocircuito en equipo conectado (transformador, banco de capacitores).",
+        "alta"))
+    acciones += [
+        "Buscar estructura colapsada (poste caído) en el tramo",
+        "Verificar si hay equipo conectado en el punto de falla (transformadores)",
+        "Revisar evidencia de rayo directo",
+        "Inspeccionar seccionadores y equipos de maniobra en la zona",
+    ]
+
+# 2. DURACIÓN → transitoria vs permanente
+if dur_ms < 200:
+    causas.append(("🌿", "Falla transitoria (auto-eliminada)",
+        f"Duración muy corta ({dur_ms:.0f} ms) — el relé reconectó exitosamente. Causa probable: contacto momentáneo por vegetación, animal, o flashover por contaminación. La línea puede estar operando normalmente.",
+        "media"))
+    acciones += ["Revisar vegetación en el tramo — probable contacto de rama con conductor",
+                 "Inspeccionar aisladores por contaminación (sales, polvo industrial)"]
+    descartar += ["Daño físico permanente del conductor"]
+elif dur_ms < 500:
+    causas.append(("⏱️", "Falla semipermanente",
+        f"Duración de {dur_ms:.0f} ms — posiblemente el relé intentó reconectar sin éxito. El objeto causante puede seguir presente.",
+        "media"))
+    acciones += ["La falla persiste — probable objeto físico en la línea",
+                 "Patrullaje urgente del tramo antes de reconectar manualmente"]
+else:
+    causas.append(("🔴", "Falla permanente",
+        f"Duración larga ({dur_ms:.0f} ms) — daño físico permanente. No intentar reconectar sin inspección visual.",
+        "alta"))
+    acciones += ["NO reconectar sin inspección visual previa",
+                 "Movilizar cuadrilla de mantenimiento inmediatamente"]
+
+# 3. MAGNITUD DE CORRIENTE → tipo de falla
+if factor_I > 8:
+    causas.append(("💥", "Corriente de cortocircuito muy alta",
+        f"Corriente de falla {I_falla_max:.0f} A ({factor_I:.1f}x la nominal). Falla de baja impedancia — contacto directo conductor-tierra o conductor-conductor. Probable daño severo.",
+        "alta"))
+    acciones += ["Inspeccionar conductor por ruptura o empalme fallido",
+                 "Verificar que no haya conductor caído energizado en suelo"]
+elif factor_I > 3:
+    causas.append(("⚠️", "Corriente de falla moderada-alta",
+        f"Corriente de falla {I_falla_max:.0f} A ({factor_I:.1f}x la nominal). Puede indicar flashover de aislador con arco sostenido o contacto con vegetación.",
+        "media"))
+    acciones += ["Revisar aisladores por flashover — buscar marcas de arco"]
+else:
+    causas.append(("🔍", "Corriente de falla baja",
+        f"Corriente de falla {I_falla_max:.0f} A ({factor_I:.1f}x la nominal). Falla de alta impedancia — posible contacto con árbol húmedo, conductor sobre tierra, o aislador muy contaminado.",
+        "baja"))
+    acciones += ["Revisar aisladores por contaminación severa (falla de alta impedancia)",
+                 "Buscar conductor apoyado sobre vegetación densa húmeda",
+                 "Inspeccionar puesta a tierra de estructuras"]
+
+# 4. POSICIÓN EN LA LÍNEA → qué infraestructura hay ahí
+if consensus:
+    if pct_linea < 15:
+        causas.append(("🏗️", "Falla cercana al origen (subestación)",
+            f"Falla a {consensus:.1f} km del origen ({pct_linea:.0f}%). Revisar equipos en cabecera: seccionadores, transformadores de medida, pararrayos de salida.",
+            "media"))
+        acciones += ["Inspeccionar equipos de patio en subestación origen",
+                     "Revisar pararrayos de salida de línea",
+                     "Verificar seccionadores de línea"]
+    elif pct_linea > 85:
+        causas.append(("🏗️", "Falla cercana al destino (subestación remota)",
+            f"Falla a {consensus:.1f} km ({pct_linea:.0f}% de la línea). Revisar equipos en subestación destino o transformadores de distribución al final de la línea.",
+            "media"))
+        acciones += ["Inspeccionar equipos en subestación destino",
+                     "Revisar transformadores de distribución en el extremo final"]
+    else:
+        acciones += [f"Concentrar patrullaje en zona de {max(0,consensus-2):.1f} km a {min(line_length,consensus+2):.1f} km desde el origen"]
+
+# 5. COMPONENTE I0 → pararrayos
+if abs(I0_s) > 0.3 * I_rated and has_gnd:
+    causas.append(("⛈️", "Alta corriente de secuencia cero — posible pararrayos operado",
+        f"I0 = {abs(I0_s):.2f} A. Corriente de secuencia cero elevada indica falla a tierra con buena conducción. Puede ser pararrayos que operó por sobretensión de rayo y quedó dañado (en corto).",
+        "media"))
+    acciones += ["Medir resistencia de pararrayos en el tramo con medidor de fuga",
+                 "Reemplazar pararrayos sospechosos — son económicos, cambiar preventivamente",
+                 "Verificar contador de operaciones de pararrayos si tienen"]
+    descartar += []
+
+# ── RENDER ──────────────────────────────────────────────────────────────────────
+# Causas probables
+st.markdown("""
+<div style="background:#fffbf0;border:1px solid #f9a825;border-left:5px solid #f9a825;
+border-radius:8px;padding:1rem 1.5rem;margin-bottom:1rem;">
+<div style="font-weight:700;color:#e65100;font-size:0.85rem;letter-spacing:1px;
+text-transform:uppercase;margin-bottom:8px;">⚠️ Causas más probables</div>
+""", unsafe_allow_html=True)
+
+for emoji, titulo, desc, prioridad in causas:
+    bdr = {"alta":"#e53935","media":"#f9a825","baja":"#43a047"}[prioridad]
+    bg  = {"alta":"#fff3f3","media":"#fffbf0","baja":"#f1f8e9"}[prioridad]
+    st.markdown(f"""
+    <div style="background:{bg};border-left:4px solid {bdr};border-radius:6px;
+    padding:0.8rem 1.2rem;margin:6px 0;">
+        <div style="font-weight:700;color:#1a2535;font-size:0.95rem;">{emoji} {titulo}</div>
+        <div style="color:#4a5568;font-size:0.85rem;margin-top:4px;">{desc}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Acciones en campo
+st.markdown("""
+<div style="background:#e8f5e9;border:1px solid #a5d6a7;border-left:5px solid #2e7d32;
+border-radius:8px;padding:1rem 1.5rem;margin-bottom:1rem;">
+<div style="font-weight:700;color:#1b5e20;font-size:0.85rem;letter-spacing:1px;
+text-transform:uppercase;margin-bottom:10px;">🛠️ Qué revisar en campo (en orden de prioridad)</div>
+""", unsafe_allow_html=True)
+
+acciones_unicas = list(dict.fromkeys(acciones))  # quitar duplicados
+for i, accion in enumerate(acciones_unicas, 1):
+    st.markdown(f"""
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:5px 0;
+    border-bottom:1px solid rgba(0,0,0,0.06);">
+        <span style="background:#2e7d32;color:white;border-radius:50%;width:22px;height:22px;
+        display:flex;align-items:center;justify-content:center;font-size:0.7rem;
+        font-weight:700;flex-shrink:0;margin-top:1px;">{i}</span>
+        <span style="color:#1a2535;font-size:0.88rem;">{accion}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Qué descartar
+if descartar:
+    st.markdown("""
+    <div style="background:#f5f5f5;border:1px solid #e0e0e0;border-left:5px solid #9e9e9e;
+    border-radius:8px;padding:1rem 1.5rem;margin-bottom:1rem;">
+    <div style="font-weight:700;color:#616161;font-size:0.85rem;letter-spacing:1px;
+    text-transform:uppercase;margin-bottom:8px;">✅ Qué probablemente NO es</div>
+    """, unsafe_allow_html=True)
+    for d in descartar:
+        st.markdown(f'<div style="color:#757575;font-size:0.85rem;padding:3px 0;">❌ {d}</div>',
+                    unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # ─── Summary table ─────────────────────────────────────────────────────────────
 st.markdown('<div class="section-title">Resumen del evento</div>', unsafe_allow_html=True)
 
